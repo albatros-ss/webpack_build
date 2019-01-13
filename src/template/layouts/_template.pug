@@ -1,0 +1,21 @@
+include ../mixins/iconsvg
+
+doctype html
+html(lang="en")
+  head
+    script
+    meta(charset="utf-8")
+    title= htmlWebpackPlugin.options.title
+    meta(content="width=device-width, initial-scale=1" name="viewport")
+    meta(content="ie=edge" http-equiv="x-ua-compatible")
+    meta(name="description" content= htmlWebpackPlugin.options.meta.description)
+    meta(name="keywords" content= htmlWebpackPlugin.options.meta.keywords)
+    meta(name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0")
+    link(rel="manifest" href="/manifest.json")
+    link(rel="icon" type="image/png" href="/img/favicon.png")
+    each cssFile in htmlWebpackPlugin.files.css
+      link(href= cssFile, rel='stylesheet')
+  body(class= htmlWebpackPlugin.options.body)
+    block main
+    each jsFile in htmlWebpackPlugin.files.js
+      script(src=jsFile, type='text/javascript')
