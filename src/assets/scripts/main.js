@@ -4,7 +4,6 @@ import Vue from 'vue'
 import App from './App.vue'
 import "normalize.css";
 import "../styles/main.scss";
-import "../image/favicon/favicon.png";
 
 function requireAll(r) {
   r.keys().forEach(r);

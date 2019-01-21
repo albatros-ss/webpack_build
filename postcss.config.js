@@ -1,5 +1,3 @@
-const fs = require("fs");
-
 module.exports = {
   syntax: "postcss-scss",
   plugins: {
@@ -7,11 +5,6 @@ module.exports = {
       extensions: ".scss"
     },
     "autoprefixer": {},
-    "postcss-advanced-variables": {
-      "variables": JSON.parse(
-        fs.readFileSync("./src/assets/styles/variables.json", "utf-8")
-      )
-    },
     "postcss-nested": {},
     "postcss-rgb": {},
     "postcss-inline-comment": {},

@@ -1,5 +1,4 @@
 const path = require("path");
-const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
 const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
@@ -12,6 +11,7 @@ const imageminGifsicle = require("imagemin-gifsicle");
 const imageminJpegtran = require("imagemin-jpegtran");
 const imageminOptipng = require("imagemin-optipng");
 const imageminSvgo = require("imagemin-svgo");
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const devMode = process.env.NODE_ENV !== "production";
 
 module.exports = {
@@ -64,6 +64,15 @@ module.exports = {
               options: {
                 sourceMap: true
               }
+            },
+            {
+              loader: "sass-resources-loader",
+              options: {
+                sourceMap: true,
+                resources: [
+                  path.resolve(__dirname, "./src/assets/styles/variables.scss")
+                ]
+              }
             }
           ]
         })
@@ -91,16 +100,25 @@ module.exports = {
       },
       {
         test: /\.pug$/,
-        loader: 'pug-loader',
-        options: {
-          pretty: true
-        }
+        oneOf: [
+          {
+            resourceQuery: /^\?vue/,
+            use: ['pug-plain-loader']
+          },
+          {
+            use: [{
+              loader: 'pug-loader',
+              options: {
+                pretty: devMode
+              }
+            }]
+          }
+        ]
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
         exclude: [
           /src\/assets\/icons\/.+\.svg$/,
-          /\/dist\/img\/sprite.svg$/,
         ],
         loader: "file-loader",
         options: {
@@ -112,8 +130,7 @@ module.exports = {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
         exclude: [
           /src\/assets\/icons\/.+\.svg$/,
-          /src\/assets\/img\/.+\.svg$/,
-          /\/dist\/img\/sprite.svg$/,
+          /src\/assets\/images\/.+\.svg$/,
         ],
         use: [{
           loader: "file-loader",
@@ -170,21 +187,34 @@ module.exports = {
     ]
   },
   plugins: [
-    new BrowserSyncPlugin({
-      open: false,
-      host: "localhost",
-      port: 3000,
-      server: {baseDir: ["dist"]}
-    }),
     new SpriteLoaderPlugin({
       plainSprite: true
     }),
     new VueLoaderPlugin(),
     new CleanWebpackPlugin("dist"),
     new CopyWebpackPlugin([
-      {from: "./manifest.json", to: ""}
+      { from: "./gen-snv-sitemap.xml", to: "" },
+      { from: "./robots.txt", to: "" },
+      { from: "./favicon.ico", to: "" }
     ]),
     new ExtractTextPlugin("css/[name].min.css?[hash]"),
+    new FaviconsWebpackPlugin({
+      logo: "./src/assets/images/favicon.png",
+      prefix: "icons-favicon/",
+      title: "My App",
+      icons: {
+        android: true,
+        appleIcon: true,
+        appleStartup: true,
+        coast: false,
+        favicons: true,
+        firefox: false,
+        opengraph: false,
+        twitter: false,
+        yandex: false,
+        windows: true
+      }
+    }),
     new ImageminPlugin({
       bail: false,
       cache: true,
@@ -208,16 +238,17 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       filename: path.join(__dirname, "dist", "index.html"),
-      template: path.resolve(__dirname, "src/template/layouts", "index.html"),
+      template: path.resolve(__dirname, "src/template/pages", "index.pug"),
       chunks: ["main"],
-      title: "Test page",
+      title: "My App",
+      description: "My App",
       inject: false,
       hash: true,
-      // minify: {
-      //   removeComments: true,
-      //   collapseWhitespace: true,
-      //   conservativeCollapse: true
-      // }
+      minify: {
+        removeComments: !devMode,
+        collapseWhitespace: !devMode,
+        conservativeCollapse: !devMode
+      }
     })
   ]
 };
