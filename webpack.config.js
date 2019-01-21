@@ -238,7 +238,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       filename: path.join(__dirname, "dist", "index.html"),
-      template: path.resolve(__dirname, "src/template/pages", "index.pug"),
+      template: path.resolve(__dirname, "src/template/layouts", "_template.html"),
       chunks: ["main"],
       title: "My App",
       description: "My App",
