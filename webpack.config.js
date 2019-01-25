@@ -118,7 +118,7 @@ module.exports = {
       {
         test: /\.(png|jpg|gif|svg)$/,
         exclude: [
-          /src\/assets\/icons\/.+\.svg$/,
+          path.resolve(__dirname, "src/assets/icons/")
         ],
         loader: "file-loader",
         options: {
@@ -129,8 +129,8 @@ module.exports = {
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
         exclude: [
-          /src\/assets\/icons\/.+\.svg$/,
-          /src\/assets\/images\/.+\.svg$/,
+          path.resolve(__dirname, "src/assets/icons/"),
+          path.resolve(__dirname, "src/assets/images/")
         ],
         use: [{
           loader: "file-loader",
