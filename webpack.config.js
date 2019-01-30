@@ -20,7 +20,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, "dist/"),
-    filename: "js/[name].min.js?[hash]"
+    filename: "js/[name].min.js?[contenthash]"
   },
   module: {
     rules: [
@@ -123,7 +123,7 @@ module.exports = {
         loader: "file-loader",
         options: {
           publicPath: '/',
-          name: "img/[name].[ext]?[hash]"
+          name: "img/[name].[ext]?[contenthash]"
         }
       },
       {
@@ -243,7 +243,6 @@ module.exports = {
       title: "My App",
       description: "My App",
       inject: false,
-      hash: true,
       minify: {
         removeComments: !devMode,
         collapseWhitespace: !devMode,
