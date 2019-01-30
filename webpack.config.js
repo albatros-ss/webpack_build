@@ -197,7 +197,7 @@ module.exports = {
       { from: "./robots.txt", to: "" },
       { from: "./favicon.ico", to: "" }
     ]),
-    new ExtractTextPlugin("css/[name].min.css?[hash]"),
+    new ExtractTextPlugin("css/[name].min.css?[chunkhash]"),
     new FaviconsWebpackPlugin({
       logo: "./src/assets/images/favicon.png",
       prefix: "icons-favicon/",
