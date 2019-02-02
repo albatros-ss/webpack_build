@@ -3,11 +3,13 @@ const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 
 module.exports = (env, argv) => {
   const devMode = argv.mode !== "production";
@@ -23,56 +25,60 @@ module.exports = (env, argv) => {
       rules: [
         {
           test: /\.css$/,
-          use: ExtractTextPlugin.extract({
-            use: [
-              {
-                loader: 'css-loader',
-                options: {
-                  sourceMap: true
-                }
-              },
-              {
-                loader: 'postcss-loader',
-                options: {
-                  sourceMap: true
-                }
+          use: [
+            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: true
               }
-            ]
-          })
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                plugins: [
+                  autoprefixer()
+                ],
+                sourceMap: true
+              }
+            }
+          ]
         },
         {
           test: /\.scss$/,
-          use: ExtractTextPlugin.extract({
-            use: [
-              {
-                loader: 'css-loader',
-                options: {
-                  sourceMap: true
-                }
-              },
-              {
-                loader: 'postcss-loader',
-                options: {
-                  sourceMap: true
-                }
-              },
-              {
-                loader: 'sass-loader',
-                options: {
-                  sourceMap: true
-                }
-              },
-              {
-                loader: "sass-resources-loader",
-                options: {
-                  sourceMap: true,
-                  resources: [
-                    path.resolve(__dirname, "./src/assets/styles/variables.scss")
-                  ]
-                }
+          use: [
+            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: true
               }
-            ]
-          })
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                plugins: [
+                  autoprefixer()
+                ],
+                sourceMap: true
+              }
+            },
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: true
+              }
+            },
+            {
+              loader: "sass-resources-loader",
+              options: {
+                sourceMap: true,
+                resources: [
+                  path.resolve(__dirname, "./src/assets/styles/variables.scss")
+                ]
+              }
+            }
+          ]
         },
         {
           test: /\.js$/,
@@ -162,16 +168,13 @@ module.exports = (env, argv) => {
         }
       ]
     },
-    performance: {
-      hints: false
-    },
     resolve: {
       alias: {
         vue$: "vue/dist/vue.esm.js"
       },
       extensions: ["*", ".js", ".vue", ".json"]
     },
-    devtool: devMode ? "#source-map" : "",
+    devtool: devMode ? "#eval-source-map" : "",
     optimization: {
       minimizer: [
         new UglifyJsPlugin({
@@ -188,7 +191,7 @@ module.exports = (env, argv) => {
         plainSprite: true
       }),
       new ImageminPlugin({
-        disable: devMode,
+        disable: !devMode,
         svgo: {
           removeViewBox: true
         }
@@ -200,7 +203,17 @@ module.exports = (env, argv) => {
         { from: "./robots.txt", to: "" },
         { from: "./favicon.ico", to: "" }
       ]),
-      new ExtractTextPlugin("css/[name].min.css?[chunkhash]"),
+      new MiniCssExtractPlugin({
+        filename: "css/[name].css?[contenthash]"
+      }),
+      new OptimizeCssAssetsPlugin({
+        assetNameRegExp: /\.css/g,
+        cssProcessor: require('cssnano'),
+        cssProcessorPluginOptions: {
+          preset: ['default', { discardComments: { removeAll: true } }],
+        },
+        canPrint: true
+      }),
       new HtmlWebpackPlugin({
         filename: path.join(__dirname, "dist", "index.html"),
         template: path.resolve(__dirname, "src/template/layouts", "_template.html"),
