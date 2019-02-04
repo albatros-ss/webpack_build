@@ -190,12 +190,6 @@ module.exports = (env, argv) => {
       new SpriteLoaderPlugin({
         plainSprite: true
       }),
-      new ImageminPlugin({
-        disable: !devMode,
-        svgo: {
-          removeViewBox: true
-        }
-      }),
       new VueLoaderPlugin(),
       new CleanWebpackPlugin("dist"),
       new CopyWebpackPlugin([
@@ -230,7 +224,8 @@ module.exports = (env, argv) => {
     ]
   };
   if (!devMode) {
-    config.plugins.push(new FaviconsWebpackPlugin({
+    config.plugins.push(
+      new FaviconsWebpackPlugin({
         logo: "./src/assets/images/favicon.png",
         prefix: "icons-favicon/",
         title: "My App",
@@ -246,7 +241,13 @@ module.exports = (env, argv) => {
           yandex: false,
           windows: true
         }
-      }));
+      }),
+      new ImageminPlugin({
+        svgo: {
+          removeViewBox: true
+        }
+      })
+    );
   }
   return config;
 };
