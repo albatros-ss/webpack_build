@@ -119,9 +119,10 @@ module.exports = (env, argv) => {
           ]
         },
         {
-          test: /\.(png|jpg|gif|svg)$/,
+          test: /\.(png|jpeg|jpg|gif|svg)$/,
           exclude: [
-            path.resolve(__dirname, "src/assets/icons/")
+            path.resolve(__dirname, "src/assets/icons/"),
+            /node_modules.*\.svg$/
           ],
           loader: "file-loader",
           options: {
