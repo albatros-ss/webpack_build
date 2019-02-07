@@ -1,6 +1,7 @@
 const path = require("path");
 const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -126,8 +127,13 @@ module.exports = (env, argv) => {
           ],
           loader: "file-loader",
           options: {
-            publicPath: '/',
-            name: "img/[name].[ext]?[contenthash]"
+            outputPath: function (url) {
+              url = url.split('/');
+              url.splice(0, 3).join('/');
+              url = url.join('/');
+              return "/img/" + url;
+            },
+            name: "[path][name].[ext]?[hash]"
           }
         },
         {
@@ -145,14 +151,14 @@ module.exports = (env, argv) => {
           }]
         },
         {
-          test: /src\/assets\/icons\/.*\.svg$/,
+          test: /src.*assets.*icons.*\.svg$/,
           use: [
             {
               loader: "svg-sprite-loader",
               options: {
                 extract: true,
-                spriteFilename: "./img/sprite.svg",
-                runtimeCompat: true,
+                spriteFilename: "/img/sprite.svg",
+                runtimeCompat: true
               }
             },
             {
@@ -161,7 +167,7 @@ module.exports = (env, argv) => {
                 plugins: [
                   {removeNonInheritableGroupAttrs: true},
                   {collapseGroups: true},
-                  {removeAttrs: {attrs: "(fill|stroke)"}},
+                  {removeAttrs: {attrs: "(fill|stroke)"}}
                 ]
               }
             }
@@ -187,22 +193,22 @@ module.exports = (env, argv) => {
         })
       ]
     },
-    devServer: {
-      contentBase: path.join(__dirname, 'dist'),
-      compress: true,
-      historyApiFallback: true,
-      port: 9000
-    },
     plugins: [
+      new BrowserSyncPlugin({
+        open: false,
+        host: 'localhost',
+        port: 4000,
+        server: {baseDir: ['dist']}
+      }),
+      new CleanWebpackPlugin("dist"),
       new SpriteLoaderPlugin({
         plainSprite: true
       }),
       new VueLoaderPlugin(),
-      new CleanWebpackPlugin("dist"),
       new CopyWebpackPlugin([
-        { from: "./sitemap.xml", to: "" },
-        { from: "./robots.txt", to: "" },
-        { from: "./favicon.ico", to: "" }
+        {from: "./sitemap.xml", to: ""},
+        {from: "./robots.txt", to: ""},
+        {from: "./favicon.ico", to: ""}
       ]),
       new MiniCssExtractPlugin({
         filename: "css/[name].css?[contenthash]"
@@ -211,7 +217,7 @@ module.exports = (env, argv) => {
         assetNameRegExp: /\.css/g,
         cssProcessor: require('cssnano'),
         cssProcessorPluginOptions: {
-          preset: ['default', { discardComments: { removeAll: true } }],
+          preset: ['default', {discardComments: {removeAll: true}}],
         },
         canPrint: true
       }),
@@ -234,7 +240,7 @@ module.exports = (env, argv) => {
     config.plugins.push(
       new FaviconsWebpackPlugin({
         logo: "./src/assets/images/favicon.png",
-        prefix: "icons-favicon/",
+        prefix: "/icons-favicon/",
         title: "My App",
         icons: {
           android: true,
