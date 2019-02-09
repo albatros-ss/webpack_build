@@ -27,15 +27,15 @@ module.exports = (env, argv) => {
         {
           test: /\.css$/,
           use: [
-            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+            devMode ? "style-loader" : MiniCssExtractPlugin.loader,
             {
-              loader: 'css-loader',
+              loader: "css-loader",
               options: {
                 sourceMap: true
               }
             },
             {
-              loader: 'postcss-loader',
+              loader: "postcss-loader",
               options: {
                 plugins: [
                   autoprefixer()
@@ -48,15 +48,15 @@ module.exports = (env, argv) => {
         {
           test: /\.scss$/,
           use: [
-            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+            devMode ? "style-loader" : MiniCssExtractPlugin.loader,
             {
-              loader: 'css-loader',
+              loader: "css-loader",
               options: {
                 sourceMap: true
               }
             },
             {
-              loader: 'postcss-loader',
+              loader: "postcss-loader",
               options: {
                 plugins: [
                   autoprefixer()
@@ -65,7 +65,7 @@ module.exports = (env, argv) => {
               }
             },
             {
-              loader: 'sass-loader',
+              loader: "sass-loader",
               options: {
                 sourceMap: true
               }
@@ -97,27 +97,17 @@ module.exports = (env, argv) => {
           }
         },
         {
-          enforce: 'pre',
+          enforce: "pre",
           test: /\.(js|vue)$/,
-          loader: 'eslint-loader',
+          loader: "eslint-loader",
           exclude: /node_modules/
         },
         {
           test: /\.pug$/,
-          oneOf: [
-            {
-              resourceQuery: /^\?vue/,
-              use: ['pug-plain-loader']
-            },
-            {
-              use: [{
-                loader: 'pug-loader',
-                options: {
-                  pretty: devMode
-                }
-              }]
-            }
-          ]
+          loader: "pug-loader",
+          options: {
+            pretty: devMode
+          }
         },
         {
           test: /\.(png|jpeg|jpg|gif|svg)$/,
@@ -128,9 +118,9 @@ module.exports = (env, argv) => {
           loader: "file-loader",
           options: {
             outputPath: function (url) {
-              url = url.split('/');
-              url.splice(0, 3).join('/');
-              url = url.join('/');
+              url = url.split("/");
+              url.splice(0, 3).join("/");
+              url = url.join("/");
               return "/img/" + url;
             },
             name: "[path][name].[ext]?[hash]"
@@ -146,7 +136,7 @@ module.exports = (env, argv) => {
             loader: "file-loader",
             options: {
               name: "[name].[ext]",
-              outputPath: '/fonts/'
+              outputPath:  "/fonts/"
             }
           }]
         },
@@ -193,18 +183,12 @@ module.exports = (env, argv) => {
         })
       ]
     },
-    devServer: {
-      contentBase: path.join(__dirname, 'dist'),
-      compress: true,
-      historyApiFallback: true,
-      port: 9000
-    },
     plugins: [
       new BrowserSyncPlugin({
         open: false,
-        host: 'localhost',
+        host: "localhost",
         port: 4000,
-        server: {baseDir: ['dist']}
+        server: {baseDir: ["dist"]}
       }),
       new CleanWebpackPlugin("dist"),
       new SpriteLoaderPlugin({
@@ -221,9 +205,9 @@ module.exports = (env, argv) => {
       }),
       new OptimizeCssAssetsPlugin({
         assetNameRegExp: /\.css/g,
-        cssProcessor: require('cssnano'),
+        cssProcessor: require("cssnano"),
         cssProcessorPluginOptions: {
-          preset: ['default', {discardComments: {removeAll: true}}],
+          preset: ["default", {discardComments: {removeAll: true}}],
         },
         canPrint: true
       }),
