@@ -16,7 +16,7 @@ module.exports = (env, argv) => {
   const devMode = argv.mode !== "production";
   let config = {
     entry: {
-      main: path.resolve(__dirname, "src/assets/scripts/main.js")
+      main: path.resolve(__dirname, "./src/assets/scripts/main.js")
     },
     output: {
       path: path.resolve(__dirname, "dist/"),
@@ -91,10 +91,7 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.vue$/,
-          loader: "vue-loader",
-          options: {
-            loaders: {}
-          }
+          loader: "vue-loader"
         },
         {
           enforce: "pre",
@@ -105,19 +102,30 @@ module.exports = (env, argv) => {
         {
           test: /\.pug$/,
           loader: "pug-loader",
-          options: {
-            pretty: devMode
-          }
+          oneOf: [
+            {
+              resourceQuery: /^\?vue/,
+              use: ["pug-plain-loader"]
+            },
+            {
+              use: [{
+                loader: "pug-loader",
+                options: {
+                  pretty: devMode
+                }
+              }]
+            }
+          ]
         },
         {
           test: /\.(png|jpeg|jpg|gif|svg)$/,
           exclude: [
-            path.resolve(__dirname, "src/assets/icons/"),
+            path.resolve(__dirname, "./src/assets/icons/"),
             /node_modules.*\.svg$/
           ],
           loader: "file-loader",
           options: {
-            outputPath: function (url) {
+            outputPath(url) {
               url = url.split("/");
               url.splice(0, 3).join("/");
               url = url.join("/");
@@ -129,14 +137,13 @@ module.exports = (env, argv) => {
         {
           test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
           exclude: [
-            path.resolve(__dirname, "src/assets/icons/"),
-            path.resolve(__dirname, "src/assets/images/")
+            path.resolve(__dirname, "./src/assets/icons/"),
+            path.resolve(__dirname, "./src/assets/images/")
           ],
           use: [{
             loader: "file-loader",
             options: {
-              name: "[name].[ext]",
-              outputPath:  "/fonts/"
+              name: "[name].[ext]"
             }
           }]
         },
@@ -201,7 +208,7 @@ module.exports = (env, argv) => {
         {from: "./favicon.ico", to: ""}
       ]),
       new MiniCssExtractPlugin({
-        filename: "css/[name].css?[contenthash]"
+        filename: "/css/[name].css?[contenthash]"
       }),
       new OptimizeCssAssetsPlugin({
         assetNameRegExp: /\.css/g,
@@ -213,7 +220,7 @@ module.exports = (env, argv) => {
       }),
       new HtmlWebpackPlugin({
         filename: path.join(__dirname, "dist", "index.html"),
-        template: path.resolve(__dirname, "src/template/layouts", "_template.html"),
+        template: path.resolve(__dirname, "./src/template/layouts", "_template.html"),
         chunks: ["main"],
         title: "My App",
         description: "My App",
