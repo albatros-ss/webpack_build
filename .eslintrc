@@ -1,12 +1,25 @@
 {
-  "extends": ["plugin:vue/recommended", "eslint:recommended"],
-  "parser": "vue-eslint-parser",
+  "extends": [
+    "plugin:vue/recommended",
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "globals": {
+    "window" : true,
+    "document" : true,
+    "console" : true
+  },
   "rules" : {
     "no-console" : "off"
   },
   "env": {
     "node" : true,
     "es6" : true,
+    "commonjs": true,
     "browser" : true
   }
 }
