@@ -101,7 +101,6 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.pug$/,
-          loader: "pug-loader",
           oneOf: [
             {
               resourceQuery: /^\?vue/,
