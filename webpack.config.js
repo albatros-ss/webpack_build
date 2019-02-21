@@ -1,16 +1,15 @@
 const path = require("path");
 const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const ImageminPlugin = require('imagemin-webpack-plugin').default;
-const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
-const autoprefixer = require('autoprefixer');
+const ImageminPlugin = require("imagemin-webpack-plugin").default;
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
+const autoprefixer = require("autoprefixer");
 
 module.exports = (env, argv) => {
   const devMode = argv.mode !== "production";
@@ -20,7 +19,8 @@ module.exports = (env, argv) => {
     },
     output: {
       path: path.resolve(__dirname, "dist/"),
-      filename: "js/[name].min.js?[contenthash]"
+      publicPath: "/",
+      filename: devMode? "js/[name].js" : "js/[name].min.js?[contenthash]"
     },
     module: {
       rules: [
@@ -48,7 +48,7 @@ module.exports = (env, argv) => {
         {
           test: /\.scss$/,
           use: [
-            devMode ? "style-loader" : MiniCssExtractPlugin.loader,
+            MiniCssExtractPlugin.loader,
             {
               loader: "css-loader",
               options: {
@@ -128,7 +128,7 @@ module.exports = (env, argv) => {
               url = url.split("/");
               url.splice(0, 3).join("/");
               url = url.join("/");
-              return "/img/" + url;
+              return "img/" + url;
             },
             name: "[path][name].[ext]?[hash]"
           }
@@ -142,7 +142,7 @@ module.exports = (env, argv) => {
           use: [{
             loader: "file-loader",
             options: {
-              name: "/fonts/[name].[ext]"
+              name: "fonts/[name].[ext]"
             }
           }]
         },
@@ -189,14 +189,17 @@ module.exports = (env, argv) => {
         })
       ]
     },
+    devServer: {
+      contentBase: "./dist",
+      host: "0.0.0.0",
+      port: 3000,
+      watchContentBase: true,
+      historyApiFallback: true,
+      noInfo: true,
+      hot: true,
+      open: true
+    },
     plugins: [
-      new BrowserSyncPlugin({
-        open: false,
-        host: "localhost",
-        port: 4000,
-        server: {baseDir: ["dist"]}
-      }),
-      new CleanWebpackPlugin("dist"),
       new SpriteLoaderPlugin({
         plainSprite: true
       }),
@@ -207,7 +210,7 @@ module.exports = (env, argv) => {
         {from: "./favicon.ico", to: ""}
       ]),
       new MiniCssExtractPlugin({
-        filename: "/css/[name].css?[contenthash]"
+        filename: "css/[name].css?[contenthash]"
       }),
       new OptimizeCssAssetsPlugin({
         assetNameRegExp: /\.css/g,
@@ -234,6 +237,7 @@ module.exports = (env, argv) => {
   };
   if (!devMode) {
     config.plugins.push(
+      new CleanWebpackPlugin("dist"),
       new FaviconsWebpackPlugin({
         logo: "./src/assets/images/favicon.png",
         prefix: "/icons-favicon/",
