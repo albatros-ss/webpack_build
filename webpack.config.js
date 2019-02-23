@@ -174,7 +174,7 @@ module.exports = (env, argv) => {
       },
       extensions: ["*", ".js", ".vue", ".json"]
     },
-    devtool: devMode ? "#eval-source-map" : "",
+    devtool: devMode ? "#cheap-module-eval-source-map" : "",
     optimization: {
       minimizer: [
         new UglifyJsPlugin({
