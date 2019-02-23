@@ -9,6 +9,10 @@
     "sourceType": "module"
   },
   "rules" : {
+    "quotes": ["warn", "double"],
+    "semi": ["warn", "always"],
+    "comma-dangle": ["warn", "never"],
+    "no-cond-assign": ["warn", "always"],
     "no-console" : "off"
   },
   "env": {
