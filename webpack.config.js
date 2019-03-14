@@ -234,7 +234,7 @@ module.exports = (env, argv) => {
   };
   if (!devMode) {
     config.plugins.push(
-      new CleanWebpackPlugin("dist"),
+      new CleanWebpackPlugin(),
       new FaviconsWebpackPlugin({
         logo: "./src/assets/images/favicon.png",
         prefix: "/icons-favicon/",
