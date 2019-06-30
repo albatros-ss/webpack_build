@@ -1,52 +1,31 @@
 const path = require("path");
 const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const ImageminPlugin = require("imagemin-webpack-plugin").default;
 const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 const autoprefixer = require("autoprefixer");
-
 module.exports = (env, argv) => {
   const devMode = argv.mode !== "production";
   let config = {
     entry: {
       main: path.resolve(__dirname, "./src/assets/scripts/main.js")
     },
+    mode: argv.mode,
     output: {
       path: path.resolve(__dirname, "dist/"),
       publicPath: "/",
-      filename: devMode? "js/[name].js" : "js/[name].min.js?[contenthash]"
+      filename: (devMode ? "js/[name].js" : "js/[name].[chunkhash].js"),
+      chunkFilename: "js/chunks/[name].[chunkhash].js"
     },
     module: {
       rules: [
         {
-          test: /\.css$/,
-          use: [
-            devMode ? "style-loader" : MiniCssExtractPlugin.loader,
-            {
-              loader: "css-loader",
-              options: {
-                sourceMap: true
-              }
-            },
-            {
-              loader: "postcss-loader",
-              options: {
-                plugins: [
-                  autoprefixer()
-                ],
-                sourceMap: true
-              }
-            }
-          ]
-        },
-        {
-          test: /\.scss$/,
+          test: /\.(sa|sc|c)ss$/,
           use: [
             MiniCssExtractPlugin.loader,
             {
@@ -69,15 +48,6 @@ module.exports = (env, argv) => {
               options: {
                 sourceMap: true
               }
-            },
-            {
-              loader: "sass-resources-loader",
-              options: {
-                sourceMap: true,
-                resources: [
-                  path.resolve(__dirname, "./src/assets/styles/variables.scss")
-                ]
-              }
             }
           ]
         },
@@ -87,31 +57,19 @@ module.exports = (env, argv) => {
           exclude: /node_modules/
         },
         {
-          test: /\.vue$/,
-          loader: "vue-loader"
-        },
-        {
           enforce: "pre",
-          test: /\.(js|vue)$/,
+          test: /\.js$/,
           loader: "eslint-loader",
           exclude: /node_modules/
         },
         {
           test: /\.pug$/,
-          oneOf: [
-            {
-              resourceQuery: /^\?vue/,
-              use: ["pug-plain-loader"]
-            },
-            {
-              use: [{
-                loader: "pug-loader",
-                options: {
-                  pretty: devMode
-                }
-              }]
+          use: [{
+            loader: "pug-loader",
+            options: {
+              pretty: devMode
             }
-          ]
+          }]
         },
         {
           test: /\.(png|jpeg|jpg|gif|svg)$/,
@@ -121,13 +79,7 @@ module.exports = (env, argv) => {
           ],
           loader: "file-loader",
           options: {
-            outputPath(url) {
-              url = url.split("/");
-              url.splice(0, 3).join("/");
-              url = url.join("/");
-              return "img/" + url;
-            },
-            name: "[path][name].[ext]?[hash]"
+            name: () => devMode ? "[path][name].[ext]" : "img/[hash].[ext]"
           }
         },
         {
@@ -149,7 +101,7 @@ module.exports = (env, argv) => {
             {
               loader: "svg-sprite-loader",
               options: {
-                extract: true,
+                extract: !devMode,
                 spriteFilename: "/img/sprite.svg",
                 runtimeCompat: true
               }
@@ -168,61 +120,72 @@ module.exports = (env, argv) => {
         }
       ]
     },
-    resolve: {
-      alias: {
-        vue$: "vue/dist/vue.esm.js"
-      },
-      extensions: ["*", ".js", ".vue", ".json"]
-    },
-    devtool: devMode ? "#cheap-module-eval-source-map" : "",
+    devtool: devMode ? "eval-source-map" : false,
     optimization: {
+      // splitChunks: {
+      //   cacheGroups: {
+      //     styles: {
+      //       name: "styles",
+      //       test: /\.css$/,
+      //       chunks: "all",
+      //       enforce: true
+      //     }
+      //   }
+      // },
       minimizer: [
         new UglifyJsPlugin({
+          parallel: true,
           uglifyOptions: {
-            output: {
-              comments: false
-            }
+            beautify: false,
+            compress: {
+              sequences: true,
+              booleans: true,
+              loops: true,
+              unused: true,
+              unsafe: true
+            },
+            comments: false
           }
         })
       ]
     },
     devServer: {
-      contentBase: "./dist",
+      // contentBase: "./dist",
       host: "0.0.0.0",
       port: 3000,
-      watchContentBase: true,
-      historyApiFallback: true,
+      // watchContentBase: true,
       noInfo: true,
-      hot: true,
       open: true
     },
     plugins: [
       new SpriteLoaderPlugin({
         plainSprite: true
       }),
-      new VueLoaderPlugin(),
       new CopyWebpackPlugin([
         {from: "./sitemap.xml", to: ""},
         {from: "./robots.txt", to: ""},
         {from: "./favicon.ico", to: ""}
       ]),
       new MiniCssExtractPlugin({
-        filename: "css/[name].css?[contenthash]"
+        filename: "css/[name].[contenthash].css",
+        chunkFilename: "css/chunks/[name].[contenthash].css"
       }),
       new OptimizeCssAssetsPlugin({
         assetNameRegExp: /\.css/g,
         cssProcessor: require("cssnano"),
         cssProcessorPluginOptions: {
-          preset: ["default", {discardComments: {removeAll: true}}],
+          preset: ["default", {discardComments: {removeAll: true}}]
         },
         canPrint: true
       }),
       new HtmlWebpackPlugin({
         filename: path.join(__dirname, "dist", "index.html"),
-        template: path.resolve(__dirname, "./src/template/layouts", "_template.html"),
+        template: path.resolve(__dirname, "./src/template/pages", "index.pug"),
         chunks: ["main"],
+        chunksSortMode: "manual",
         title: "My App",
         description: "My App",
+        mode : devMode,
         inject: false,
         minify: {
           removeComments: !devMode,
@@ -237,8 +200,9 @@ module.exports = (env, argv) => {
       new CleanWebpackPlugin(),
       new FaviconsWebpackPlugin({
         logo: "./src/assets/images/favicon.png",
-        prefix: "/icons-favicon/",
+        prefix: "icons-favicon/",
         title: "My App",
+        persistentCache: false,
         icons: {
           android: true,
           appleIcon: true,
@@ -252,11 +216,7 @@ module.exports = (env, argv) => {
           windows: true
         }
       }),
-      new ImageminPlugin({
-        svgo: {
-          removeViewBox: true
-        }
-      })
+      new ImageminPlugin({})
     );
   }
   return config;

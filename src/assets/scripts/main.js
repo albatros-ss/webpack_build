@@ -1,7 +1,5 @@
 "use strict";
 
-import Vue from "vue";
-import App from "./App.vue";
 import "normalize.css";
 import "../styles/main.scss";
 
@@ -10,11 +8,6 @@ function requireAll(r) {
 }
 
 requireAll(require.context("../icons/", true, /\.svg$/));
-
-new Vue({
-  el: "#app",
-  render: h => h(App)
-});
 
 (function () {
 

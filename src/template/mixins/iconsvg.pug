@@ -1,4 +1,4 @@
 mixin iconsvg(svgName, modificator)
   svg(class!=`icon ` + `icon-${svgName}` + (modificator ? ` icon-${svgName}_${modificator}` : '') + (
-    attributes.class ? ` icon-${attributes.class}` : ''))
-    use(xlink:href=`/img/sprite.svg#${svgName}`)
+    attributes.class ? ` ${attributes.class}` : ''))
+    use(xlink:href=(htmlWebpackPlugin.options.mode ? `#${svgName}` : `/img/sprite.svg?${rev.version}#${svgName}`))
