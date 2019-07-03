@@ -150,10 +150,8 @@ module.exports = (env, argv) => {
       ]
     },
     devServer: {
-      // contentBase: "./dist",
       host: "0.0.0.0",
       port: 3000,
-      // watchContentBase: true,
       noInfo: true,
       open: true
     },
