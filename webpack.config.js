@@ -120,7 +120,7 @@ module.exports = (env, argv) => {
         }
       ]
     },
-    devtool: devMode ? "eval-source-map" : false,
+    devtool: devMode ? "source-map" : false,
     optimization: {
       // splitChunks: {
       //   cacheGroups: {
@@ -168,14 +168,6 @@ module.exports = (env, argv) => {
         filename: "css/[name].[contenthash].css",
         chunkFilename: "css/chunks/[name].[contenthash].css"
       }),
-      new OptimizeCssAssetsPlugin({
-        assetNameRegExp: /\.css/g,
-        cssProcessor: require("cssnano"),
-        cssProcessorPluginOptions: {
-          preset: ["default", {discardComments: {removeAll: true}}]
-        },
-        canPrint: true
-      }),
       new HtmlWebpackPlugin({
         filename: path.join(__dirname, "dist", "index.html"),
         template: path.resolve(__dirname, "./src/template/pages", "index.pug"),
@@ -196,6 +188,14 @@ module.exports = (env, argv) => {
   if (!devMode) {
     config.plugins.push(
       new CleanWebpackPlugin(),
+      new OptimizeCssAssetsPlugin({
+        assetNameRegExp: /\.css/g,
+        cssProcessor: require("cssnano"),
+        cssProcessorPluginOptions: {
+          preset: ["default", {discardComments: {removeAll: true}}]
+        },
+        canPrint: true
+      }),
       new FaviconsWebpackPlugin({
         logo: "./src/assets/images/favicon.png",
         prefix: "icons-favicon/",
@@ -204,7 +204,7 @@ module.exports = (env, argv) => {
         icons: {
           android: true,
           appleIcon: true,
-          appleStartup: true,
+          appleStartup: false,
           coast: false,
           favicons: true,
           firefox: false,
