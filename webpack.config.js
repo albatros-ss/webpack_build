@@ -142,9 +142,13 @@ module.exports = (env, argv) => {
               booleans: true,
               loops: true,
               unused: true,
-              unsafe: true
+              unsafe: true,
+              drop_console: true
             },
-            comments: false
+            output: {
+              comments: false
+            },
+            warnings: false
           }
         })
       ]
