@@ -19,7 +19,7 @@ module.exports = (env, argv) => {
     output: {
       path: path.resolve(__dirname, "dist/"),
       publicPath: "/",
-      filename: (devMode ? "js/[name].js" : "js/[name].[chunkhash].js"),
+      filename: devMode ? "js/[name].js" : "js/[name].[chunkhash].js",
       chunkFilename: "js/chunks/[name].[chunkhash].js"
     },
     module: {
@@ -79,7 +79,7 @@ module.exports = (env, argv) => {
           ],
           loader: "file-loader",
           options: {
-            name: () => devMode ? "[path][name].[ext]" : "img/[hash].[ext]"
+            name: devMode ? "[path][name].[ext]" : "img/[hash].[ext]"
           }
         },
         {
@@ -175,7 +175,7 @@ module.exports = (env, argv) => {
         chunksSortMode: "manual",
         title: "My App",
         description: "My App",
-        mode : devMode,
+        mode: devMode,
         inject: false,
         minify: {
           removeComments: !devMode,
